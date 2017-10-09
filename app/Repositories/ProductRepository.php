@@ -9,7 +9,7 @@ interface ProductRepository
 {
     function getAll(): Collection;
 
-    function getById(int $id): Product;
+    function getById(int $id): ?Product;
 
     function save(Product $product): Product;
 

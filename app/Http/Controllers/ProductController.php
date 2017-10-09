@@ -56,8 +56,7 @@ class ProductController extends Controller
         $product = $this->productRepository->getById($id);
 
         if (is_null($product)) {
-            throw (new ModelNotFoundException)
-                ->setModel(get_class(Product::class), $id);
+            return response()->json(['status' => 'KO'], 404);
         }
 
         return response()->json($product);
@@ -72,14 +71,11 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $currentProduct = $this->productRepository->getById($id);
+        $product = $this->productRepository->getById($id);
 
-        if (is_null($currentProduct)) {
-            throw (new ModelNotFoundException)
-                ->setModel(get_class(Product::class), $id);
+        if (is_null($product)) {
+            return response()->json(['status' => 'KO'], 404);
         }
-
-        $product = new Product;
 
         $product->name = $request->get('name');
 

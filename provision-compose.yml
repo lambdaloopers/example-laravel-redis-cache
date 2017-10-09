@@ -3,7 +3,7 @@ version: '3'
 services:
   composer:
     image: library/composer:1.5
-    command: bash -c "composer install"
+    command: bash -c "composer install && composer update"
     volumes:
       - .:/app
 

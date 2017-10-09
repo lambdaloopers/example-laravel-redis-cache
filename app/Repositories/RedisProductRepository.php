@@ -19,25 +19,45 @@ class RedisProductRepository implements ProductRepository
 
     public function getAll(): Collection
     {
-        $products = json_decode(Redis::get('product.all'));
+        $rawProducts = json_decode(Redis::get('product.all'));
 
-        if (is_null($products)) {
-            $products = $this->nestedRepository->getAll();
+        if (! is_null($rawProducts)) {
+            $products = collect(
+                array_map(function ($rawProduct) {
+                    $product = new Product;
+                    $product->id = $rawProduct->id;
+                    $product->name = $rawProduct->name;
 
-            Redis::set('product.all', json_encode($products));
-            Redis::ttl('product.all', self::CACHE_TTL);
+                    return $product;
+                }, $rawProducts)
+            );
+
+            return $products;
         }
+
+        $products = $this->nestedRepository->getAll();
+
+        Redis::set('product.all', json_encode($products));
+        Redis::expire('product.all', self::CACHE_TTL);
 
         return $products;
     }
 
-    public function getById(int $id): Product
+    public function getById(int $id): ?Product
     {
-        $product = json_decode(Redis::get('product.' . $id));
+        $rawProduct = json_decode(Redis::get('product.' . $id));
 
-        if (is_null($product)) {
-            $product = $this->nestedRepository->getById($id);
+        if (! is_null($rawProduct)) {
+            $product = new Product;
+            $product->id = $rawProduct->id;
+            $product->name = $rawProduct->name;
 
+            return $product;
+        }
+
+        $product = $this->nestedRepository->getById($id);
+
+        if (! is_null($product)) {
             $this->save($product);
         }
 
@@ -50,19 +70,30 @@ class RedisProductRepository implements ProductRepository
 
         Redis::del('product.' . $product->id);
         Redis::set('product.' . $product->id, json_encode($product));
-        Redis::ttl('product.' . $product->id, self::CACHE_TTL);
+        Redis::expire('product.' . $product->id, self::CACHE_TTL);
 
-        $products = $this->nestedRepository->getAll();
-
-        Redis::del('product.all');
-        Redis::set('product.all', json_encode($products));
-        Redis::ttl('product.all', self::CACHE_TTL);
+        $this->updateProductList();
 
         return $product;
     }
 
     public function delete(int $id): int
     {
-        return Redis::del('product.' . $id);
+        $numDeletes = Redis::del('product.' . $id);
+
+        $this->nestedRepository->delete($id);
+
+        $this->updateProductList();
+
+        return $numDeletes;
+    }
+
+    private function updateProductList()
+    {
+        $products = $this->nestedRepository->getAll();
+
+        Redis::del('product.all');
+        Redis::set('product.all', json_encode($products));
+        Redis::expire('product.all', self::CACHE_TTL);
     }
 }

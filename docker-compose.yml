@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+    nginx:
+      image: evild/alpine-nginx:1.9.15-openssl
+      links:
+        - php
+      volumes:
+        - .:/var/www/html:ro
+        - ./docker/nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
+        - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      ports:
+        - 80:80
+        - 443:443
+      restart: 'no'
+
+    php:
+      build: docker/php
+      volumes:
+        - .:/var/www/html
+      env_file:
+        - .env
+      restart: 'no'
+
+    mysql:
+      image: mysql:5.7
+      volumes:
+        - ./docker/mysql:/var/lib/mysql
+      restart: 'no'
+      environment:
+        MYSQL_ROOT_PASSWORD: supersecurepassword
+        MYSQL_DATABASE: lambdaloopers
+        MYSQL_USER: lambdaloopers
+        MYSQL_PASSWORD: lambdaloopers
+
+    node:
+      image: library/node:8.6
+      volumes:
+        - .:/var/www
+      command: bash -c "cd /var/www && npm install && npm run watch-poll"
+      restart: 'no'
+
+    redis:
+      image: library/redis:4.0
+      restart: 'no'
+      ports:
+        - 6379:6379

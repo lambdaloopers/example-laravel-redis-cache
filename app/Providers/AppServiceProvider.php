@@ -2,11 +2,11 @@
 
 namespace LaravelRedisCache\Providers;
 
+use Illuminate\Support\ServiceProvider;
 use LaravelRedisCache\Http\Controllers\ProductController;
 use LaravelRedisCache\Repositories\MysqlProductRepository;
 use LaravelRedisCache\Repositories\ProductRepository;
 use LaravelRedisCache\Repositories\RedisProductRepository;
-use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {

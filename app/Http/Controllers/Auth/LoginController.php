@@ -2,8 +2,8 @@
 
 namespace LaravelRedisCache\Http\Controllers\Auth;
 
-use LaravelRedisCache\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use LaravelRedisCache\Http\Controllers\Controller;
 
 class LoginController extends Controller
 {

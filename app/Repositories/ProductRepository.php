@@ -2,8 +2,8 @@
 
 namespace LaravelRedisCache\Repositories;
 
-use LaravelRedisCache\Product;
 use Illuminate\Support\Collection;
+use LaravelRedisCache\Product;
 
 interface ProductRepository
 {

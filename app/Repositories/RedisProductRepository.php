@@ -2,9 +2,9 @@
 
 namespace LaravelRedisCache\Repositories;
 
-use LaravelRedisCache\Product;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Redis;
+use LaravelRedisCache\Product;
 
 class RedisProductRepository implements ProductRepository
 {
@@ -21,7 +21,7 @@ class RedisProductRepository implements ProductRepository
     {
         $rawProducts = json_decode(Redis::get('product.all'));
 
-        if (! is_null($rawProducts)) {
+        if (!is_null($rawProducts)) {
             $products = collect(
                 array_map(function ($rawProduct) {
                     $product = new Product;
@@ -35,10 +35,7 @@ class RedisProductRepository implements ProductRepository
             return $products;
         }
 
-        $products = $this->nestedRepository->getAll();
-
-        Redis::set('product.all', json_encode($products));
-        Redis::expire('product.all', self::CACHE_TTL);
+        $products = $this->updateProductList();
 
         return $products;
     }
@@ -47,7 +44,7 @@ class RedisProductRepository implements ProductRepository
     {
         $rawProduct = json_decode(Redis::get('product.' . $id));
 
-        if (! is_null($rawProduct)) {
+        if (!is_null($rawProduct)) {
             $product = new Product;
             $product->id = $rawProduct->id;
             $product->name = $rawProduct->name;
@@ -57,7 +54,7 @@ class RedisProductRepository implements ProductRepository
 
         $product = $this->nestedRepository->getById($id);
 
-        if (! is_null($product)) {
+        if (!is_null($product)) {
             $this->save($product);
         }
 
@@ -87,13 +84,15 @@ class RedisProductRepository implements ProductRepository
 
         return $numDeletes;
     }
-
-    private function updateProductList()
+    
+    private function updateProductList(): Collection
     {
         $products = $this->nestedRepository->getAll();
 
         Redis::del('product.all');
         Redis::set('product.all', json_encode($products));
         Redis::expire('product.all', self::CACHE_TTL);
+
+        return $products;
     }
 }

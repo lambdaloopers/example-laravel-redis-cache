@@ -2,10 +2,10 @@
 
 namespace LaravelRedisCache\Http\Controllers\Auth;
 
-use LaravelRedisCache\User;
-use LaravelRedisCache\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\Validator;
+use LaravelRedisCache\Http\Controllers\Controller;
+use LaravelRedisCache\User;
 
 class RegisterController extends Controller
 {
@@ -42,7 +42,7 @@ class RegisterController extends Controller
     /**
      * Get a validator for an incoming registration request.
      *
-     * @param  array  $data
+     * @param  array $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
@@ -57,7 +57,7 @@ class RegisterController extends Controller
     /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array  $data
+     * @param  array $data
      * @return \LaravelRedisCache\User
      */
     protected function create(array $data)
